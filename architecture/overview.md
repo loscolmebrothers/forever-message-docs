@@ -55,7 +55,7 @@ graph TB
 
 ## Monorepo Structure
 
-Forever Message is organized as a monorepo with multiple packages:
+Forever Message is organized as a monorepo with multiple packages, each of them as a separate repository:
 
 ```
 forever-message/
