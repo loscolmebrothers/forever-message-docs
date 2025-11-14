@@ -65,21 +65,26 @@ Forever Message is organized as a monorepo with multiple packages that work toge
 - `forever-message-docs`: This documentation
 
 ### Tech Stack Summary
-- **Frontend**: Next.js 14, React 18, React Three Fiber, RainbowKit
+- **Frontend**: Next.js 14, React 18, React Three Fiber, RainbowKit, anime.js
 - **Wallet**: wagmi, viem, SIWE
 - **Backend**: Next.js API Routes, Supabase Auth
 - **Database**: Supabase (PostgreSQL)
 - **Blockchain**: Base Sepolia, ethers.js
 - **Storage**: Storacha (IPFS + Filecoin)
+- **Testing**: Cypress (E2E), Jest + RTL (Unit/Component)
+- **Code Quality**: ESLint + Prettier, CI/CD pipeline
 - **Hosting**: Netlify
 
 ### Core Features
 - **3D Ocean Environment**: Interactive bottle visualization
 - **Wallet Authentication**: Sign-in with Ethereum (SIWE)
+- **Professional Animations**: Wax seal bottle creation with anime.js
 - **Decentralized Storage**: IPFS for message content
 - **Blockchain Immutability**: NFTs on Base Sepolia
-- **Async Processing**: Queue-based bottle creation
+- **Async Processing**: Queue-based bottle creation with real-time tracking
 - **Real-time Updates**: SWR data fetching
+- **Comprehensive Testing**: E2E and unit test coverage
+- **Code Quality**: Automated linting, formatting, and CI/CD
 
 ## Contributing
 

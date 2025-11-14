@@ -87,13 +87,20 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 
 ### Utilities
 
+**anime.js**
+- Version: `^4.2.2`
+- Purpose: Professional animation library
+- Features: Easing functions, timeline control, promise-based
+- Why: High-quality animations for bottle creation sequence
+- Used in: CreateBottleModal (roll, sparkle burst, fly-away)
+
 **usehooks-ts**
 - Version: `^3.x`
 - Purpose: React hooks library
 - Hooks Used: `useWindowSize`, `useDebounce`
 
 **sonner**
-- Version: `^1.x`
+- Version: `^2.x`
 - Purpose: Toast notifications
 - Why: Beautiful, accessible, easy to use
 
@@ -264,9 +271,33 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 ### Code Quality
 
 **ESLint**
-- Config: Next.js default
-- Rules: Standard React/Next.js rules
+- Config: `next/core-web-vitals` extended with Prettier
+- Plugins: `eslint-plugin-prettier`
+- Rules: Standard React/Next.js rules + Prettier formatting
 - Why: Catch errors early, enforce consistency
+
+**Prettier**
+- Version: `^3.6.2`
+- Config: `.prettierrc` with project standards
+- Format: Semi-colons, double quotes, 2-space tabs, LF line endings
+- Integration: ESLint plugin for unified linting
+- Scripts: `yarn format`, `yarn format:check`
+- Why: Consistent code formatting across the codebase
+
+**Testing Infrastructure**
+- **Cypress**: E2E testing framework (v15.6.0)
+- **Jest**: Unit testing framework (v30.2.0)
+- **React Testing Library**: Component testing (@testing-library/react v16.3.0)
+- Config: Next.js 14 App Router compatible
+- Scripts: `yarn test`, `yarn test:e2e`, `yarn test:watch`, `yarn test:coverage`
+- Documented in: `TESTING.md`
+- Why: Quality assurance and regression prevention
+
+**CI/CD Verification**
+- Script: `yarn ci`
+- Pipeline: `lint → format:check → build → test → test:e2e`
+- Purpose: Comprehensive quality gates before deployment
+- Ensures: Code quality, formatting consistency, build success, test passage
 
 ### Version Control
 
@@ -286,7 +317,7 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
   "@rainbow-me/rainbowkit": "^2.2.9",
   "@tanstack/react-query": "^5.90.6",
   "@loscolmebrothers/forever-message-ipfs": "^4.1.0",
-  "@loscolmebrothers/forever-message-types": "^1.1.0",
+  "@loscolmebrothers/forever-message-types": "^3.0.0",
   "next": "^14.x",
   "react": "^18.x",
   "react-dom": "^18.x",
@@ -297,11 +328,33 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
   "viem": "^2.38.6",
   "siwe": "^3.0.0",
   "swr": "^2.x",
-  "sonner": "^1.x",
+  "sonner": "^2.x",
+  "animejs": "^4.2.2",
   "usehooks-ts": "^3.x",
   "@supabase/supabase-js": "^2.x",
   "ethers": "^6.x",
   "konva": "^9.x"
+}
+```
+
+### Dev Dependencies
+
+```json
+{
+  "@types/jest": "^30.0.0",
+  "@types/node": "^24.10.1",
+  "@types/react": "^18.3.0",
+  "@types/react-dom": "^18.3.0",
+  "@testing-library/react": "^16.3.0",
+  "@testing-library/jest-dom": "^6.9.1",
+  "@testing-library/user-event": "^14.6.1",
+  "cypress": "^15.6.0",
+  "jest": "^30.2.0",
+  "jest-environment-jsdom": "^30.2.0",
+  "prettier": "^3.6.2",
+  "eslint-config-prettier": "^10.1.8",
+  "eslint-plugin-prettier": "^5.5.4",
+  "typescript": "^5.0.0"
 }
 ```
 
@@ -325,6 +378,71 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
   "ethers": "^6.x"
 }
 ```
+
+---
+
+## UI/UX Design Patterns
+
+### Bottle Creation Flow
+
+**CreateBottleModal Design:**
+- **Layout**: Minimal 3-line parchment strip (75px textarea)
+- **Message Length**: 120 characters maximum (optimized for readability)
+- **Input**: Single-line textarea (no multi-line)
+- **Submit Button**: Red wax seal (96px desktop / 80px mobile)
+- **Position**: Seal centered, half-in/half-out of modal
+- **Character Counter**: 11px, floated right, 0.4 opacity
+- **Close Button**: 24px, inside modal, black background, 0.6 opacity
+
+**Animation Sequence (anime.js):**
+1. **Roll Phase** (~800ms)
+   - Parchment rolls up vertically (scaleY: 0.1)
+   - Easing: `inOut(quad)` for professional motion
+   - Seal scales and hides during roll
+
+2. **Bottle Filling Phase** (~1200ms)
+   - Seal transforms into bottle appearance
+   - Bottle grows with elastic bounce
+   - Easing: `out(elastic(1, .6))` for playful effect
+   - Opacity animates from 0 to 1
+
+3. **Sparkle Burst** (~800ms)
+   - 16 sparkle sprites appear around bottle
+   - Each sparkle: rotation, scale pulse, fade out
+   - Easing: `out(expo)` for explosive burst
+   - Uses pixellab sparkle sprites (32×32px)
+
+4. **Fly Away** (~600ms)
+   - Bottle flies upward off-screen
+   - Easing: `in(quad)` for smooth departure
+   - Modal closes after animation completes
+
+**Toast Notifications:**
+- Success toast appears AFTER modal closes
+- Timing ensures user sees completion
+- Uses Sonner library for consistency
+
+### Parchment Aesthetic
+
+**Visual Theme:**
+- Background: Beige parchment texture (#f5f5dc)
+- Overlay: Semi-transparent parchment image (30% opacity)
+- Fonts: AndreaScript (headings), ApfelGrotezk (body)
+- Colors: Dark brown text (#2c1810)
+- Shadows: Subtle for depth without modern feel
+
+**Assets:**
+- Wax seal: `public/assets/effects/red-wax-seal.png` (64×64px)
+- Sparkles: `public/assets/effects/sparkle-*.png` (32×32px)
+- Bottle sprites: `public/assets/bottle-sprites/` (various)
+
+### Bottle Modal (Temporary)
+
+Currently displays "Under Construction" placeholder:
+- Simple modal with construction emoji (🚧)
+- Parchment background maintained for consistency
+- Message: "We're working on making this bottle even more special. Check back soon!"
+- Full IPFS content loading will be implemented later
 
 ---
 

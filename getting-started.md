@@ -76,14 +76,17 @@ forever-message/
 **`components/Ocean/`**
 - `OceanStage.tsx`: Main 3D ocean component
 - `FloatingBottle.tsx`: Individual bottle rendering
-- `BottleModal.tsx`: Bottle detail view
-- `CreateBottleModal.tsx`: Bottle creation form
+- `BottleModal.tsx`: Bottle detail view (currently placeholder)
+- `CreateBottleModal.tsx`: Bottle creation form with wax seal animation
+- `SparkleEffect.tsx`: Sparkle burst animation using sprites
 
 **`hooks/`**
-- `useBottles.ts`: Fetch and manage bottles
+- `useBottles.ts`: Fetch and manage bottles with progressive loading
 - `useLikes.ts`: Like/unlike functionality
-- `useBottleQueue.ts`: Queue status tracking
+- `useBottleQueue.ts`: Real-time queue status tracking
 - `useAuth.ts`: Exported from AuthContext
+- `useComments.ts`: Comment fetching and management
+- `useFrame.ts`: Animation frame utilities
 
 **`lib/`**
 - `auth/`: Authentication (AuthContext, middleware)
@@ -205,6 +208,34 @@ graph LR
    http://localhost:3000
    ```
 
+### Running Tests
+
+**Unit and Component Tests:**
+```bash
+yarn test              # Run all tests
+yarn test:watch        # Watch mode for development
+yarn test:coverage     # Generate coverage report
+```
+
+**End-to-End Tests:**
+```bash
+yarn cypress           # Open Cypress UI
+yarn test:e2e          # Run E2E tests headless
+```
+
+**CI/CD Pipeline:**
+```bash
+yarn ci                # Runs: lint → format:check → build → test → test:e2e
+```
+
+**Code Formatting:**
+```bash
+yarn format            # Format all files
+yarn format:check      # Check formatting without modifying
+```
+
+For detailed testing documentation, see `TESTING.md` in the client directory.
+
 ### Making Changes
 
 #### Adding a New Feature
@@ -222,16 +253,23 @@ graph LR
 3. **Test locally**
    ```bash
    yarn dev
+   yarn test        # Run unit tests
+   yarn test:e2e    # Run E2E tests
    ```
 
-4. **Commit and push**
+4. **Check code quality**
+   ```bash
+   yarn ci          # Run full CI pipeline locally
+   ```
+
+5. **Commit and push**
    ```bash
    git add .
    git commit -m "Add my feature"
    git push origin feature/my-feature
    ```
 
-5. **Create pull request** on GitHub
+6. **Create pull request** on GitHub
 
 #### Modifying Smart Contracts
 
