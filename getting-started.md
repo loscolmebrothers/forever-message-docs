@@ -73,12 +73,15 @@ forever-message/
 - `layout.tsx`: Root layout (providers, header)
 - `api/`: API routes (bottles, auth, likes, comments)
 
-**`components/Ocean/`**
-- `OceanStage.tsx`: Main 3D ocean component
-- `FloatingBottle.tsx`: Individual bottle rendering
-- `BottleModal.tsx`: Bottle detail view (currently placeholder)
-- `CreateBottleModal.tsx`: Bottle creation form with wax seal animation
-- `SparkleEffect.tsx`: Sparkle burst animation using sprites
+**`components/`**
+- `LoadingScreen.tsx`: Onboarding screen with anime.js timeline
+- `Ocean/OceanStage.tsx`: Main 2D ocean component
+- `Ocean/FloatingBottle.tsx`: Individual bottle rendering
+- `Ocean/BottleModal.tsx`: Bottle detail view
+- `Ocean/CreateBottleModal.tsx`: Bottle creation form with wax seal animation
+- `Ocean/SparkleEffect.tsx`: Sparkle burst animation using sprites
+- `Ocean/LOSCOLMEBROTHERSLogo.tsx`: Branded logo with hover animation
+- `Header.tsx`: App header with wallet connection
 
 **`hooks/`**
 - `useBottles.ts`: Fetch and manage bottles with progressive loading
@@ -165,6 +168,69 @@ graph LR
 2. Run `yarn publish` to publish to npm
 3. Update dependency in `forever-message-client`
 4. Run `yarn install` in client
+
+### 5. Animation Architecture
+
+**Three Animation Approaches:**
+
+1. **Timeline-Based (anime.js)**: For orchestrated multi-step sequences
+   - Examples: LoadingScreen, CreateBottleModal
+   - When to use: Multi-step UI sequences, modal transitions, onboarding flows
+   - Pattern: `createTimeline()` → `.add()` steps → promise-based completion
+   - Timing: Precise control with delays, durations, and easing functions
+
+2. **Physics-Based (React Spring)**: For natural, interactive motion
+   - Examples: LOSCOLMEBROTHERSLogo hover, bottle physics
+   - When to use: Hover effects, interactive elements, physics simulations
+   - Pattern: `useSpring()` hooks with spring config
+   - Feel: Natural bounce and momentum
+
+3. **Frame-Based (RAF)**: For performance-critical sprite animations
+   - Examples: SparkleEffect (16 sparkles simultaneously)
+   - When to use: Sprite animations, particle effects, game-like interactions
+   - Pattern: `requestAnimationFrame()` loop with cleanup
+   - Control: Direct frame-by-frame manipulation
+
+**Decision Guide:**
+- Need a sequence with specific timing? → anime.js
+- Need natural, bouncy motion? → React Spring
+- Need 60fps sprite animation? → RAF
+
+### 6. Design System Architecture
+
+**Dual Aesthetic Approach:**
+
+1. **Glass-Morphism (Ocean Theme)**
+   - Purpose: UI controls, interactive elements, modern feel
+   - Color: Cyan/turquoise/aquamarine palette (`#40E0D0`, `#20B2AA`, `#7FFFD4`)
+   - Effects: Backdrop blur, subtle glows, semi-transparency
+   - Files: Defined in `tailwind.config.js` and `app/globals.css`
+   - Usage: Buttons, panels, notifications, interactive overlays
+   - Example: `.glass-button` class for all action buttons
+
+2. **Parchment (Vintage Theme)**
+   - Purpose: Content-focused overlays, forms, messages
+   - Color: Beige/brown/ink palette (`#f5f5dc`, `#e8e4d0`, `#2d1a0a`)
+   - Effects: Paper texture, vintage shadows
+   - Usage: Bottle creation modal, message displays
+   - Example: `.parchment-surface` class for modal backgrounds
+
+**Design Token Structure:**
+```tsx
+// Glass components use Tailwind classes
+<button className="glass-button">Click me</button>
+
+// Parchment components also use Tailwind classes
+<div className="parchment-surface">Content here</div>
+
+// Custom fonts applied globally
+<p className="font-apfel">UI Text</p> // ApfelGrotezk
+<span style={{fontFamily: 'AndreaScript'}}>Decorative</span>
+```
+
+**Typography:**
+- **ApfelGrotezk**: Primary UI font (400, 500, 700, 800 weights)
+- **AndreaScript**: Decorative script font for emphasis
 
 ---
 

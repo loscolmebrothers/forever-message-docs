@@ -29,6 +29,7 @@ sequenceDiagram
     participant RPC as Alchemy RPC<br/>(Base Sepolia)
     participant Contract as ForeverMessage<br/>Contract
     participant DB as bottles<br/>(Supabase)
+    participant Toast as Toast System<br/>(Sonner + NotificationStore)
 
     User->>UI: Enter message, click "Cast"
 
@@ -93,6 +94,21 @@ sequenceDiagram
     Edge-->>Webhook: Success
     deactivate Edge
     deactivate Webhook
+
+    Queue->>Toast: Status update (queued)
+    Toast-->>User: "Sealing your message..."
+
+    Queue->>Toast: Status update (uploading)
+    Toast-->>User: "Sealing your message..."
+
+    Queue->>Toast: Status update (minting)
+    Toast-->>User: "Casting your bottle..."
+
+    Queue->>Toast: Status update (confirming)
+    Toast-->>User: "Almost there..."
+
+    Queue->>Toast: Status update (completed)
+    Toast-->>User: "Your bottle has been cast!" (success)
 
     Note over UI: SWR auto-refetch
 
@@ -403,6 +419,63 @@ sequenceDiagram
 
 ---
 
+## Real-Time Notification Flow
+
+Toast notifications provide feedback during async bottle creation.
+
+```mermaid
+sequenceDiagram
+    participant Queue as bottles_queue<br/>(Supabase)
+    participant Hook as useBottleQueue<br/>(Real-time subscription)
+    participant Store as NotificationStore<br/>(Zustand-like)
+    participant UI as Toast UI<br/>(Sonner)
+    participant User
+
+    Queue->>Hook: UPDATE event (status change)
+    activate Hook
+    Hook->>Hook: Detect status change
+
+    alt Status: queued or uploading
+        Hook->>Store: addLoadingToast(id, "Sealing your message...")
+        Store->>UI: Show loading toast
+        UI-->>User: Display: "Sealing your message..."
+    else Status: minting
+        Hook->>Store: addLoadingToast(id, "Casting your bottle...")
+        Store->>UI: Update toast message
+        UI-->>User: Display: "Casting your bottle..."
+    else Status: confirming
+        Hook->>Store: addLoadingToast(id, "Almost there...")
+        Store->>UI: Update toast message
+        UI-->>User: Display: "Almost there..."
+    else Status: completed
+        Hook->>Store: removeLoadingToast(id)
+        Hook->>Store: addCompletionNotification({id, message, ipfsCid, txHash})
+        Store->>UI: Show success toast
+        UI-->>User: Display: "Your bottle has been cast!"
+
+        Note over Hook: Wait 1s then remove from queue
+        Hook->>Hook: setTimeout 1000ms
+        Hook->>Hook: Remove from queueItems state
+    else Status: failed
+        Hook->>Store: removeLoadingToast(id)
+        Store->>UI: Show error toast
+        UI-->>User: Display error message
+
+        Note over Hook: Wait 1s then remove from queue
+        Hook->>Hook: Remove from queueItems state
+    end
+    deactivate Hook
+```
+
+### Key Points
+- **Real-time Updates**: Supabase subscription triggers on status changes
+- **Progressive Messaging**: Toast messages match queue phase
+- **Automatic Cleanup**: Completed/failed items removed after 1s delay
+- **Loading States**: Single toast per bottle, updated in-place
+- **Success Feedback**: Includes IPFS CID and transaction hash links
+
+---
+
 ## Summary
 
 ### Data Flow Characteristics
@@ -414,6 +487,7 @@ sequenceDiagram
 | Comment Creation | Medium | 3-5s | Yes | No |
 | Authentication | Medium | 2-3s | No | No |
 | Bottle Sync | Medium | Varies | No | Yes (cron) |
+| Real-Time Notifications | Low | Instant | No | Yes (subscription) |
 
 ### Common Patterns
 

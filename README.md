@@ -65,24 +65,31 @@ Forever Message is organized as a monorepo with multiple packages that work toge
 - `forever-message-docs`: This documentation
 
 ### Tech Stack Summary
-- **Frontend**: Next.js 14, React 18, React Three Fiber, RainbowKit, anime.js
+- **Frontend**: Next.js 14, React 18, Konva (2D canvas), Tailwind CSS, anime.js
 - **Wallet**: wagmi, viem, SIWE
 - **Backend**: Next.js API Routes, Supabase Auth
 - **Database**: Supabase (PostgreSQL)
 - **Blockchain**: Base Sepolia, ethers.js
 - **Storage**: Storacha (IPFS + Filecoin)
+- **Typography**: ApfelGrotezk (UI), AndreaScript (decorative)
+- **Design**: Glass-morphism (ocean aesthetic) + Parchment (vintage aesthetic)
 - **Testing**: Cypress (E2E), Jest + RTL (Unit/Component)
 - **Code Quality**: ESLint + Prettier, CI/CD pipeline
 - **Hosting**: Netlify
 
 ### Core Features
-- **3D Ocean Environment**: Interactive bottle visualization
+- **Onboarding Experience**: Animated loading screen explaining app functionality
+- **Glass-Morphism UI**: Modern ocean-themed design with cyan/turquoise palette
+- **2D Ocean Canvas**: Interactive bottle visualization with Konva
 - **Wallet Authentication**: Sign-in with Ethereum (SIWE)
-- **Professional Animations**: Wax seal bottle creation with anime.js
+- **Professional Animations**: anime.js timeline orchestration for UI sequences
+- **Spring Physics**: React Spring for natural, interactive motion
+- **Real-time Queue Tracking**: Toast notifications for bottle creation progress
 - **Decentralized Storage**: IPFS for message content
 - **Blockchain Immutability**: NFTs on Base Sepolia
-- **Async Processing**: Queue-based bottle creation with real-time tracking
-- **Real-time Updates**: SWR data fetching
+- **Async Processing**: Queue-based bottle creation with webhooks
+- **Custom Typography**: ApfelGrotezk and AndreaScript fonts
+- **Dual Design Systems**: Glass-morphism and parchment aesthetics
 - **Comprehensive Testing**: E2E and unit test coverage
 - **Code Quality**: Automated linting, formatting, and CI/CD
 

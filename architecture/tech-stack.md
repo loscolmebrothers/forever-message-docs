@@ -80,10 +80,32 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 
 ### Styling
 
-**CSS-in-JS (Inline Styles)**
-- Approach: Inline style objects
-- Why: Component co-location, dynamic styling, no build step
-- Trade-off: No CSS extraction, larger bundle (acceptable for this project)
+**Tailwind CSS**
+- Version: `^3.x`
+- Approach: Utility-first CSS framework with custom design system
+- Configuration: Custom theme in `tailwind.config.js`
+- Why: Rapid development with consistent design tokens
+
+**Design Systems**
+
+1. **Glass-Morphism (Ocean Aesthetic)**
+   - Color palette: Cyan/turquoise (`#40E0D0`, `#20B2AA`, `#7FFFD4`)
+   - Components: `.glass-surface`, `.glass-button`, `.glass-button-sm`
+   - Effects: Backdrop blur (10px/16px), gradient overlays, glow shadows
+   - Used for: UI controls, modals, interactive elements
+   - Pattern: Semi-transparent backgrounds with aqua tint and subtle glows
+
+2. **Parchment Aesthetic**
+   - Color palette: Beige/brown (`#f5f5dc`, `#e8e4d0`, `#2d1a0a`)
+   - Components: `.parchment-surface`, `.parchment-button`, `.parchment-modal`
+   - Used for: Bottle creation forms, content-focused overlays
+   - Pattern: Warm, vintage appearance with subtle shadows
+
+**Custom CSS Classes** (`app/globals.css`):
+- Glass components with hover states and glow effects
+- Parchment components with vintage styling
+- Animation utilities (fade-in, slide-in, bounce-in)
+- Custom keyframe animations
 
 ### Utilities
 
@@ -109,6 +131,45 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 - Purpose: Wallet-based authentication
 - Standard: EIP-4361
 - Why: Decentralized authentication without passwords
+
+### Animation & UI Libraries
+
+**anime.js (animejs)**
+- Version: `^4.2.2`
+- Purpose: Professional animation orchestration
+- Features: Timeline sequencing, spring easing, promise-based animations
+- Why: High-quality, production-ready animations with precise control
+- Used in:
+  - `LoadingScreen.tsx`: Sequential text reveals with sprite animations
+  - `CreateBottleModal.tsx`: Parchment roll, bottle filling, sparkle burst sequences
+  - `LOSCOLMEBROTHERSLogo.tsx`: Spring-based hover animations
+  - `SparkleEffect.tsx`: Burst pattern animations
+
+**React Spring (via @react-spring/konva)**
+- Version: `^9.7.3`
+- Purpose: Physics-based animations for Konva canvas
+- Why: Spring physics for natural motion in canvas elements
+- Used in: Bottle physics and interactive elements
+
+**Manual RAF (Request Animation Frame)**
+- Purpose: Custom frame-by-frame animations
+- Used in: Sprite-based effects and performance-critical animations
+
+### Typography
+
+**ApfelGrotezk** (Custom Font)
+- Source: `https://assets.loscolmebrothers.com/fonts/ApfelGrotezk/`
+- Weights: Regular (400), Mittel (500), Satt (700), Fett (800)
+- Format: OpenType (.otf)
+- Usage: Primary UI font for all interface text
+- Applied via: Tailwind utility class `.font-apfel`
+
+**AndreaScript** (Custom Font)
+- Source: `https://assets.loscolmebrothers.com/fonts/AndreaScript.ttf`
+- Weight: Normal
+- Format: TrueType (.ttf)
+- Usage: Decorative text (e.g., "forever" in loading screen)
+- Style: Script/cursive font for emphasis and branding
 
 ---
 
@@ -330,6 +391,8 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
   "swr": "^2.x",
   "sonner": "^2.x",
   "animejs": "^4.2.2",
+  "@react-spring/konva": "^9.7.3",
+  "date-fns": "^4.1.0",
   "usehooks-ts": "^3.x",
   "@supabase/supabase-js": "^2.x",
   "ethers": "^6.x",
@@ -435,6 +498,139 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 - Wax seal: `public/assets/effects/red-wax-seal.png` (64×64px)
 - Sparkles: `public/assets/effects/sparkle-*.png` (32×32px)
 - Bottle sprites: `public/assets/bottle-sprites/` (various)
+
+### Loading Screen Experience
+
+**LoadingScreen Component Design:**
+- **Purpose**: Onboarding experience explaining app functionality
+- **Layout**: Full-screen overlay (`z-index: 9999`) with dark ocean background
+- **Animation Engine**: anime.js timeline orchestration
+
+**Animation Sequence** (4.6s total):
+1. **Text Line 1** (250ms): "Connect your wallet."
+   - Spring entrance (bounce: 0.4, translateY: 10→0)
+
+2. **Text + Bottle Sprite** (900ms): "Cast a bottle." + sprite reveal
+   - Bottle sprite scales from 0.5→1 with spring bounce (0.65)
+   - Positioned inline with text
+
+3. **Text Line 2** (1800ms): "Read and like ❤️ other people's bottles."
+   - Heart sprite appears simultaneously
+   - Spring animation with slight upward position
+
+4. **"Forever" Text** (2800ms): Script font reveal
+   - Uses AndreaScript font at 2xl size
+   - Animated bottle sprite and sparkles appear
+
+5. **Sparkle Animations** (3200ms): Continuous loop
+   - Two sparkle sprites rotate and pulse
+   - Rotate: 0→180→360° and 0→-180→-360°
+   - Opacity pulse: 1→0.6→1
+   - Duration: 2000ms / 2500ms loops
+
+6. **Background Gradient** (3400ms): Ambient animation
+   - Radial gradient with cyan/turquoise glow
+   - Moves in figure-8 pattern
+   - 8000ms loop duration
+
+7. **"Dive in" Button** (3200ms): CTA reveal
+   - Glass button with fade-in
+   - Click triggers blur exit animation (500ms)
+
+**Social Links** (bottom-center):
+- GitHub repository link
+- Base blockchain explorer link
+- Disclaimer: "(We pay for all the blockchain fees)"
+- Fade-in at 3400ms with spring animation
+
+**Responsive Behavior**:
+- Text wraps naturally on mobile via flexbox
+- Sprites remain inline with text
+- Social links stay centered at bottom
+
+### Glass-Morphism Design System
+
+**Color Philosophy**: Water/ocean aesthetic with cyan/turquoise tones
+
+**Component Classes**:
+
+1. **`.glass-surface`** - Base surface
+   - Backdrop blur: 10px
+   - Background: Gradient from `rgba(64, 224, 208, 0.12)` to `rgba(32, 178, 170, 0.16)`
+   - Border: `rgba(127, 255, 212, 0.25)` (aquamarine glow)
+   - Shadow: Inset light + outer shadow with no glow at rest
+
+2. **`.glass-button`** - Interactive button
+   - Base: Same as glass-surface + padding (px-6 py-3)
+   - Font: ApfelGrotezk Medium (500 weight)
+   - Hover: Scale 1.02 + intensified gradient + 20px aqua glow
+   - Active: Scale 0.98 + 30px aqua glow
+   - Transition: 300ms ease-out
+
+3. **`.glass-button-sm`** - Small variant
+   - Padding: px-4 py-2
+   - Font size: text-sm
+   - Same hover/active behavior
+
+**Usage Pattern**:
+```tsx
+<button className="glass-button">
+  Dive in
+</button>
+```
+
+**Design Tokens** (Tailwind config):
+```js
+colors: {
+  glass: {
+    tint: { light: "rgba(64, 224, 208, 0.04)", DEFAULT: "rgba(64, 224, 208, 0.08)" },
+    border: { DEFAULT: "rgba(127, 255, 212, 0.25)", dark: "rgba(72, 209, 204, 0.35)" },
+    text: { DEFAULT: "rgba(255, 255, 255, 0.9)", muted: "rgba(255, 255, 255, 0.7)" }
+  }
+}
+```
+
+### Los Colmebrothers Branding
+
+**LOSCOLMEBROTHERSLogo Component**:
+- **Position**: Fixed bottom-center (`left-1/2, transform: translateX(-50%)`)
+- **Layer**: `z-index: 50`
+- **Appearance**: Glass button with cyan-100 background, 30% opacity
+- **Content**: Landscape SVG logo from `assets.loscolmebrothers.com`
+- **Dimensions**: 120×30 SVG scaled to h-4 (16px height)
+- **Link**: External link to `loscolmebrothers.com`
+
+**Hover Animation** (anime.js + spring easing):
+- Duration: 300ms entrance / 500ms exit
+- Easing: `spring({ bounce: 0.4, duration: 400 })`
+- Transform: `scale(1) → scale(1.1)` on hover
+- Maintains translateX(-50%) for centering
+
+**Styling Pattern**:
+- Uses `.glass-button-sm` class for glass aesthetic
+- Custom opacity (30%→50% on hover)
+- No bottom border radius for "emerging from bottom" effect
+
+### Responsive Design Patterns
+
+**Mobile-First Approach**:
+- Flexbox with `flex-wrap` for natural text wrapping
+- Window size hooks (`useWindowSize` from usehooks-ts)
+- Breakpoint: 768px for desktop layout changes
+- Component-level responsive state (`isMobile` state)
+
+**Loading Screen Responsive Behavior**:
+```tsx
+<div className="flex flex-wrap items-center justify-center gap-x-2 md:gap-x-3">
+  {/* Content wraps on mobile, stays inline on desktop */}
+</div>
+```
+
+**Pattern**:
+- Use `gap-x-{size}` for horizontal spacing
+- Use `md:gap-x-{larger}` for desktop expansion
+- Keep sprites inline with `whitespace-nowrap` on text sections
+- Allow natural wrapping at section boundaries
 
 ### Bottle Modal (Temporary)
 

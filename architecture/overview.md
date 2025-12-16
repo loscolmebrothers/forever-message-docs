@@ -100,7 +100,8 @@ forever-message/
 - **Framework**: Next.js 14 (App Router, React Server Components)
 - **3D Graphics**: React Three Fiber + Three.js
 - **Canvas**: Konva (for 2D bottle rendering)
-- **Styling**: CSS-in-JS (inline styles)
+- **Animation**: anime.js (timeline-based UI orchestration), React Spring (physics)
+- **Styling**: Tailwind CSS with custom glass-morphism and parchment design systems
 - **State Management**: React hooks + SWR for data fetching
 - **Wallet**: RainbowKit + wagmi + viem
 
@@ -110,6 +111,12 @@ forever-message/
 - Real-time bottle creation progress
 - Wallet authentication with SIWE
 - Progressive loading for performance
+
+**User Experience Features:**
+- Onboarding loading screen with animated explanations
+- Real-time queue notifications with phase-based toasts
+- Glass-morphism UI with ocean aesthetic
+- Spring-based micro-interactions
 
 ### 2. Backend (API)
 
@@ -370,6 +377,9 @@ sequenceDiagram
 - **Memoization**: Bottle positions cached
 - **Lazy Loading**: OceanStage loaded client-side only
 - **SWR Caching**: API responses cached with revalidation
+- **Animation Performance**: anime.js for orchestrated sequences, RAF for sprite effects
+- **Font Loading**: Custom fonts loaded from CDN with font-display strategy
+- **Toast System**: Centralized notification store for reduced re-renders
 
 ### Backend
 - **Connection Pooling**: Supabase handles DB connections
