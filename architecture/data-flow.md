@@ -282,7 +282,7 @@ SIWE (Sign-In With Ethereum) flow for wallet-based authentication.
 sequenceDiagram
     actor User
     participant UI as Frontend<br/>(Header)
-    participant RainbowKit as RainbowKit<br/>ConnectButton
+    participant Reown as Reown AppKit<br/>ConnectButton
     participant Wallet as User's Wallet
     participant AuthCtx as Auth Context
     participant NonceAPI as API Route<br/>/api/auth/nonce
@@ -292,18 +292,18 @@ sequenceDiagram
     User->>UI: Click "Connect Wallet"
 
     activate UI
-    UI->>RainbowKit: Open modal
-    activate RainbowKit
-    RainbowKit-->>User: Show wallet options
-    User->>RainbowKit: Select wallet (e.g., MetaMask)
-    RainbowKit->>Wallet: Request connection
+    UI->>Reown: Open modal
+    activate Reown
+    Reown-->>User: Show wallet options
+    User->>Reown: Select wallet (e.g., MetaMask)
+    Reown->>Wallet: Request connection
     activate Wallet
     Wallet-->>User: Approval modal
     User->>Wallet: Approve
-    Wallet-->>RainbowKit: Connected {address, chainId}
+    Wallet-->>Reown: Connected {address, chainId}
     deactivate Wallet
-    RainbowKit-->>UI: Connection success
-    deactivate RainbowKit
+    Reown-->>UI: Connection success
+    deactivate Reown
 
     UI->>AuthCtx: Detect isConnected=true
     activate AuthCtx

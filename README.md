@@ -39,7 +39,7 @@ Detailed sequence diagrams showing how data moves through the system for various
 Complete overview of all technologies, libraries, and tools used in Forever Message.
 
 **Sections:**
-- Frontend (Next.js, React, Three.js, RainbowKit, wagmi)
+- Frontend (Next.js, React, Three.js, Reown AppKit, wagmi)
 - Backend (Next.js API Routes, Supabase Auth)
 - Blockchain (Solidity, ethers.js, viem, Base Sepolia)
 - Storage (Supabase PostgreSQL, Storacha IPFS)
@@ -66,6 +66,7 @@ Forever Message is organized as a monorepo with multiple packages that work toge
 
 ### Tech Stack Summary
 - **Frontend**: Next.js 14, React 18, Konva (2D canvas), Tailwind CSS, anime.js
+- **Web3 UI**: Reown AppKit (wallet connection)
 - **Wallet**: wagmi, viem, SIWE
 - **Backend**: Next.js API Routes, Supabase Auth
 - **Database**: Supabase (PostgreSQL)

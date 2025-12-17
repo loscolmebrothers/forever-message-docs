@@ -26,7 +26,7 @@ This guide will help you understand the Forever Message codebase and get up to s
 - (Optional) Alchemy account for RPC
 - (Optional) Supabase account for database
 - (Optional) Storacha account for IPFS
-- (Optional) WalletConnect Cloud account for RainbowKit
+- (Optional) Reown Cloud account for AppKit
 
 ---
 
@@ -69,19 +69,30 @@ forever-message/
 ### Key Directories
 
 **`app/` (Next.js App Router)**
-- `page.tsx`: Home page (renders OceanStage)
-- `layout.tsx`: Root layout (providers, header)
+- `page.tsx`: Home page (renders Ocean Stage)
+- `layout.tsx`: Root layout (providers, sidebar)
 - `api/`: API routes (bottles, auth, likes, comments)
 
 **`components/`**
-- `LoadingScreen.tsx`: Onboarding screen with anime.js timeline
-- `Ocean/OceanStage.tsx`: Main 2D ocean component
-- `Ocean/FloatingBottle.tsx`: Individual bottle rendering
-- `Ocean/BottleModal.tsx`: Bottle detail view
-- `Ocean/CreateBottleModal.tsx`: Bottle creation form with wax seal animation
-- `Ocean/SparkleEffect.tsx`: Sparkle burst animation using sprites
-- `Ocean/LOSCOLMEBROTHERSLogo.tsx`: Branded logo with hover animation
-- `Header.tsx`: App header with wallet connection
+- `Introduction.tsx`: Onboarding screen with anime.js timeline
+- `Header/`: App header with wallet connection
+  - `index.tsx`: Header component (default export)
+  - `LoginButton.tsx`: Wallet connection button
+- `Sidebar/`: Notification system
+  - `index.tsx`: Notification sidebar (default export)
+  - `Toast.tsx`: Toast notification component
+  - `BellIcon.tsx`: Notification bell icon
+- `Bottle/`: Bottle-related components
+  - `FloatingBottle.tsx`: Individual bottle rendering
+  - `BottleModal.tsx`: Bottle detail view
+  - `CreateBottleModal.tsx`: Bottle creation form with wax seal animation
+  - `BottleSprite.tsx`: Bottle sprite rendering
+  - `CreateBottleButton.tsx`: Floating button to create bottles
+- `Ocean/`: Ocean visualization
+  - `Stage.tsx`: Main 2D ocean canvas component
+  - `Background.tsx`: Ocean background rendering
+- `LOSCOLMEBROTHERSLogo.tsx`: Branded logo with hover animation
+- `ErrorState.tsx`: Error display component
 
 **`hooks/`**
 - `useBottles.ts`: Fetch and manage bottles with progressive loading
@@ -123,7 +134,7 @@ User creates bottle
 ### 2. Authentication Flow
 
 ```
-User connects wallet (RainbowKit)
+User connects wallet (Reown AppKit)
   → Auto-trigger sign-in (SIWE)
     → Get nonce from server
       → Create SIWE message
@@ -174,7 +185,7 @@ graph LR
 **Three Animation Approaches:**
 
 1. **Timeline-Based (anime.js)**: For orchestrated multi-step sequences
-   - Examples: LoadingScreen, CreateBottleModal
+   - Examples: Introduction, CreateBottleModal
    - When to use: Multi-step UI sequences, modal transitions, onboarding flows
    - Pattern: `createTimeline()` → `.add()` steps → promise-based completion
    - Timing: Precise control with delays, durations, and easing functions
@@ -503,7 +514,7 @@ https://storacha.link/ipfs/<CID>
 
 **External Resources:**
 - Next.js: https://nextjs.org/docs
-- RainbowKit: https://rainbowkit.com
+- Reown AppKit: https://docs.reown.com/appkit
 - Supabase: https://supabase.com/docs
 - Storacha: https://docs.storacha.network
 

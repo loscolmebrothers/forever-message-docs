@@ -10,7 +10,7 @@ Forever Message is a decentralized application that allows users to create and s
 graph TB
     subgraph "Client Layer"
         UI[Next.js Frontend]
-        Wallet[Wallet Connection<br/>RainbowKit + wagmi]
+        Wallet[Wallet Connection<br/>Reown AppKit + wagmi]
     end
 
     subgraph "API Layer"
@@ -71,7 +71,7 @@ forever-message/
 **forever-message-client**
 - Next.js 14 application with App Router
 - React Three Fiber for 3D ocean visualization
-- RainbowKit + wagmi for wallet connection
+- Reown AppKit + wagmi for wallet connection
 - Supabase client for authentication and data
 - API routes for bottle operations
 
@@ -103,7 +103,7 @@ forever-message/
 - **Animation**: anime.js (timeline-based UI orchestration), React Spring (physics)
 - **Styling**: Tailwind CSS with custom glass-morphism and parchment design systems
 - **State Management**: React hooks + SWR for data fetching
-- **Wallet**: RainbowKit + wagmi + viem
+- **Wallet**: Reown AppKit + wagmi + viem
 
 **Key Features:**
 - Interactive 3D ocean environment
@@ -213,7 +213,7 @@ forever-message/
 
 **Sign-In With Ethereum (SIWE) Flow:**
 
-1. User connects wallet (RainbowKit)
+1. User connects wallet (Reown AppKit)
 2. Client requests nonce from `/api/auth/nonce`
 3. Client creates SIWE message with nonce
 4. User signs message with wallet
@@ -367,7 +367,7 @@ sequenceDiagram
 ### Wallet Security
 - Private keys never leave user's wallet
 - Signatures required for all blockchain operations
-- Clear transaction previews via RainbowKit
+- Clear transaction previews via Reown AppKit
 
 ## Performance Optimizations
 
@@ -375,7 +375,7 @@ sequenceDiagram
 - **Progressive Loading**: Bottles load in batches of 20
 - **Viewport Culling**: Only render visible bottles
 - **Memoization**: Bottle positions cached
-- **Lazy Loading**: OceanStage loaded client-side only
+- **Lazy Loading**: Ocean Stage loaded client-side only
 - **SWR Caching**: API responses cached with revalidation
 - **Animation Performance**: anime.js for orchestrated sequences, RAF for sprite effects
 - **Font Loading**: Custom fonts loaded from CDN with font-display strategy

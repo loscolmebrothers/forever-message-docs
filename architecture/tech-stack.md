@@ -47,12 +47,12 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 
 ### Wallet & Web3
 
-**RainbowKit**
-- Version: `^2.2.x`
+**Reown AppKit (formerly WalletConnect)**
+- Version: `^1.x`
 - Purpose: Wallet connection UI
-- Features: Multi-wallet support, beautiful UI, mobile-friendly
-- Why: Best-in-class wallet UX with minimal setup
-- Wallets Supported: MetaMask, Coinbase Wallet, WalletConnect, Rainbow, and 30+ more
+- Features: Multi-wallet support, modern UI, mobile-friendly
+- Why: Industry-standard wallet connection with WalletConnect protocol
+- Wallets Supported: MetaMask, Coinbase Wallet, Trust Wallet, Rainbow, and 300+ more
 
 **wagmi**
 - Version: `^2.x`
@@ -140,10 +140,9 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 - Features: Timeline sequencing, spring easing, promise-based animations
 - Why: High-quality, production-ready animations with precise control
 - Used in:
-  - `LoadingScreen.tsx`: Sequential text reveals with sprite animations
+  - `Introduction.tsx`: Sequential text reveals with sprite animations
   - `CreateBottleModal.tsx`: Parchment roll, bottle filling, sparkle burst sequences
   - `LOSCOLMEBROTHERSLogo.tsx`: Spring-based hover animations
-  - `SparkleEffect.tsx`: Burst pattern animations
 
 **React Spring (via @react-spring/konva)**
 - Version: `^9.7.3`
@@ -499,9 +498,9 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 - Sparkles: `public/assets/effects/sparkle-*.png` (32×32px)
 - Bottle sprites: `public/assets/bottle-sprites/` (various)
 
-### Loading Screen Experience
+### Introduction Screen Experience
 
-**LoadingScreen Component Design:**
+**Introduction Component Design:**
 - **Purpose**: Onboarding experience explaining app functionality
 - **Layout**: Full-screen overlay (`z-index: 9999`) with dark ocean background
 - **Animation Engine**: anime.js timeline orchestration
@@ -692,16 +691,17 @@ Currently displays "Under Construction" placeholder:
 - AWS: Too much manual config
 - Self-hosted: Requires ops
 
-#### Wallet: RainbowKit + wagmi
+#### Wallet: Reown AppKit + wagmi
 **Pros:**
-- Beautiful UI out of the box
-- Supports 30+ wallets
-- Mobile-friendly
+- Industry-standard wallet connection protocol
+- Supports 300+ wallets via WalletConnect
+- Mobile-friendly with QR code scanning
 - Great TypeScript support
+- Modern, customizable UI
 
 **Alternatives Considered:**
-- Web3Modal: Less polished UI
-- ConnectKit: Newer, less mature
+- RainbowKit: Less wallet support, deprecated
+- Web3Modal v2: Older version of Reown
 - Custom wallet connect: Too much work
 
 ---
