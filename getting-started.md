@@ -17,15 +17,14 @@ This guide will help you understand the Forever Message codebase and get up to s
 - **JavaScript/TypeScript**: Core language
 - **React & Next.js**: Frontend framework
 - **Ethereum Basics**: Wallets, transactions, smart contracts
-- **IPFS Concepts**: Content addressing, decentralized storage
+- **Storage Concepts**: Supabase Storage, object storage basics
 
 ### Tools & Accounts
 - Node.js 20+ and Yarn
 - Git and GitHub account
 - MetaMask or another Web3 wallet
 - (Optional) Alchemy account for RPC
-- (Optional) Supabase account for database
-- (Optional) Storacha account for IPFS
+- (Optional) Supabase account for database and storage
 - (Optional) Reown Cloud account for AppKit
 
 ---
@@ -60,8 +59,8 @@ forever-message/
 │   └── test/                   # Contract tests
 ├── forever-message-types/      # Shared types
 │   └── src/                    # TypeScript interfaces
-├── forever-message-ipfs/       # IPFS service
-│   └── src/                    # Storacha wrapper
+├── forever-message-ipfs/       # Storage service (legacy)
+│   └── src/                    # Supabase Storage wrapper
 └── forever-message-docs/       # Documentation
     └── architecture/           # Architecture docs
 ```
@@ -122,7 +121,7 @@ forever-message/
 User creates bottle
   → Queued (bottles_queue)
     → Webhook triggers
-      → Upload to IPFS (get CID)
+      → Upload to Supabase Storage (get storage path)
         → Mint on blockchain (get bottle ID)
           → Confirm transaction
             → Insert into bottles table
@@ -152,7 +151,7 @@ User connects wallet (Reown AppKit)
 **Three Data Sources:**
 1. **Database (Supabase)**: Fast queries, real-time updates
 2. **Blockchain (Base Sepolia)**: Immutable source of truth
-3. **IPFS (Storacha)**: Decentralized content storage
+3. **Supabase Storage**: Message content storage
 
 **Sync Strategy:**
 - Write to DB first (fast UX)
@@ -166,12 +165,12 @@ graph LR
     Client[forever-message-client]
     Contract[forever-message-contract]
     Types[forever-message-types]
-    IPFS[forever-message-ipfs]
+    Storage[forever-message-ipfs]
 
     Client --> Types
-    Client --> IPFS
+    Client --> Storage
     Client -.->|Imports ABI| Contract
-    IPFS --> Types
+    Storage --> Types
 ```
 
 **Publishing Flow:**
@@ -271,8 +270,7 @@ graph LR
    - `NEXT_PUBLIC_CONTRACT_ADDRESS`: Current contract address
    - `NEXT_PUBLIC_SUPABASE_URL`: From Supabase dashboard
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: From Supabase dashboard
-   - `SUPABASE_SERVICE_ROLE_KEY`: From Supabase dashboard (secret!)
-   - `STORACHA_PRINCIPAL_KEY`: From `storacha key create --json`
+   - `SUPABASE_SERVICE_ROLE_KEY`: From Supabase dashboard (secret! — also used for Storage writes)
    - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`: From WalletConnect Cloud
 
 5. **Start development server**
@@ -451,7 +449,7 @@ yarn link @loscolmebrothers/forever-message-types
 **Possible causes:**
 1. Webhook not configured in Supabase
 2. Edge function not deployed
-3. IPFS upload failed
+3. Supabase Storage upload failed
 4. Blockchain transaction failed
 
 **Debugging:**
@@ -460,12 +458,12 @@ yarn link @loscolmebrothers/forever-message-types
 3. Check Supabase edge function logs
 4. Check Alchemy dashboard for transactions
 
-#### Issue: "Failed to fetch IPFS content"
+#### Issue: "Failed to fetch bottle content"
 
 **Solution:**
-- Check IPFS gateway is accessible
-- Verify CID is valid
-- Try different gateway: `ipfs.io` or `cloudflare-ipfs.com`
+- Check Supabase Storage bucket (`forever-message-bottles`) is accessible
+- Verify the storage path is valid
+- Check Supabase project URL and anon key
 
 #### Issue: TypeScript errors in IDE
 
@@ -500,9 +498,9 @@ console.log('[API]', request.body)
 - Search for your wallet address
 - View recent transactions
 
-**Check IPFS content:**
+**Check stored content:**
 ```
-https://storacha.link/ipfs/<CID>
+https://<project-ref>.supabase.co/storage/v1/object/public/forever-message-bottles/<path>
 ```
 
 ### Getting Help
@@ -516,7 +514,6 @@ https://storacha.link/ipfs/<CID>
 - Next.js: https://nextjs.org/docs
 - Reown AppKit: https://docs.reown.com/appkit
 - Supabase: https://supabase.com/docs
-- Storacha: https://docs.storacha.network
 
 **Community:**
 - GitHub Issues: Report bugs and request features

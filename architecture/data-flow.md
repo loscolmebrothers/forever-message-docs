@@ -13,7 +13,7 @@ This document illustrates the key data flows in Forever Message, showing how inf
 
 ## Bottle Creation Flow
 
-This is the most complex flow in the system, involving queuing, async processing, IPFS upload, and blockchain interaction.
+This is the most complex flow in the system, involving queuing, async processing, Supabase Storage upload, and blockchain interaction.
 
 ```mermaid
 sequenceDiagram
@@ -25,7 +25,7 @@ sequenceDiagram
     participant Webhook as DB Webhook
     participant Edge as Edge Function<br/>process-bottle
     participant Process as API Route<br/>/api/bottles/process
-    participant IPFS as Storacha<br/>(IPFS)
+    participant Storage as Supabase<br/>Storage
     participant RPC as Alchemy RPC<br/>(Base Sepolia)
     participant Contract as ForeverMessage<br/>Contract
     participant DB as bottles<br/>(Supabase)
@@ -62,14 +62,14 @@ sequenceDiagram
 
     Process->>Queue: UPDATE {status:'uploading', progress:10}
 
-    Process->>IPFS: Upload message JSON
-    activate IPFS
-    IPFS-->>Process: IPFS CID
-    deactivate IPFS
+    Process->>Storage: Upload message JSON
+    activate Storage
+    Storage-->>Process: Storage path
+    deactivate Storage
 
     Process->>Queue: UPDATE {status:'minting', ipfs_cid, progress:40}
 
-    Process->>RPC: Send transaction<br/>createBottle(cid, creator)
+    Process->>RPC: Send transaction<br/>createBottle(ipfsHash, creator)
     activate RPC
     RPC->>Contract: Execute createBottle()
     activate Contract
@@ -219,7 +219,7 @@ sequenceDiagram
     participant UI as Frontend<br/>(AddCommentForm)
     participant Auth as Supabase<br/>Session
     participant API as API Route<br/>/api/bottles/[id]/comments
-    participant IPFS as Storacha
+    participant Storage as Supabase Storage
     participant RPC as Alchemy RPC
     participant Contract as ForeverMessage<br/>Contract
     participant DB as comments<br/>(Supabase)
@@ -237,14 +237,14 @@ sequenceDiagram
     API->>API: Validate JWT
     API->>API: Check bottle exists<br/>and not expired
 
-    API->>IPFS: Upload comment JSON
-    activate IPFS
-    IPFS-->>API: IPFS CID
-    deactivate IPFS
+    API->>Storage: Upload comment JSON
+    activate Storage
+    Storage-->>API: Storage path
+    deactivate Storage
 
     UI-->>User: Show "Posting to blockchain..." toast
 
-    API->>RPC: Send transaction<br/>addComment(bottleId, cid, userAddress)
+    API->>RPC: Send transaction<br/>addComment(bottleId, ipfsHash, userAddress)
     activate RPC
     RPC->>Contract: Execute addComment()
     activate Contract
@@ -268,7 +268,7 @@ sequenceDiagram
 
 ### Key Points
 - **Synchronous**: Comment posted immediately (within timeout)
-- **IPFS First**: Upload to IPFS before blockchain
+- **Storage First**: Upload to Supabase Storage before blockchain
 - **Toast Feedback**: Clear progress indicators for user
 - **No Queue**: Simpler than bottles, completes in ~3-5s
 
@@ -372,7 +372,7 @@ sequenceDiagram
     participant RPC as Alchemy RPC
     participant Contract as ForeverMessage<br/>Contract
     participant DB as Supabase DB
-    participant IPFS as IPFS Gateway
+    participant Storage as Supabase Storage
 
     Note over Cron: Runs every 5 minutes
 
@@ -391,10 +391,10 @@ sequenceDiagram
     loop For each event
         EdgeFn->>EdgeFn: Parse event<br/>{bottleId, creator, ipfsHash}
 
-        EdgeFn->>IPFS: Fetch ipfsHash
-        activate IPFS
-        IPFS-->>EdgeFn: JSON {message, userId, timestamp}
-        deactivate IPFS
+        EdgeFn->>Storage: Fetch content for ipfsHash
+        activate Storage
+        Storage-->>EdgeFn: JSON {message, userId, timestamp}
+        deactivate Storage
 
         EdgeFn->>DB: Check if bottle exists<br/>SELECT * WHERE id=bottleId
         DB-->>EdgeFn: Exists or null
@@ -410,6 +410,8 @@ sequenceDiagram
     EdgeFn-->>Cron: Sync complete<br/>{newBottles: count}
     deactivate EdgeFn
 ```
+
+> **Note:** The `ipfsHash` field emitted by the contract is a legacy name kept for ABI compatibility — the value it holds is now a Supabase Storage object path. See [Architecture Overview](./overview.md) for details.
 
 ### Key Points
 - **Scheduled Sync**: Runs every 5 minutes
@@ -472,7 +474,7 @@ sequenceDiagram
 - **Progressive Messaging**: Toast messages match queue phase
 - **Automatic Cleanup**: Completed/failed items removed after 1s delay
 - **Loading States**: Single toast per bottle, updated in-place
-- **Success Feedback**: Includes IPFS CID and transaction hash links
+- **Success Feedback**: Includes storage path and transaction hash links
 
 ---
 
@@ -494,5 +496,5 @@ sequenceDiagram
 1. **JWT Validation**: All authenticated flows validate JWT via middleware
 2. **Optimistic Updates**: UI updates before API confirmation
 3. **Dual Write**: Critical data written to both DB and blockchain
-4. **IPFS First**: Always upload to IPFS before blockchain
+4. **Storage First**: Always upload to Supabase Storage before blockchain
 5. **Error Handling**: Graceful degradation, clear error messages

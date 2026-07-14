@@ -4,7 +4,7 @@ Official documentation for the Forever Message project.
 
 ## Overview
 
-Forever Message is a decentralized application that allows users to create and share messages in digital bottles. The app combines blockchain technology (Base Sepolia), IPFS storage (Storacha), and traditional web technologies to create an immersive experience.
+Forever Message is a decentralized application that allows users to create and share messages in digital bottles. The app combines blockchain technology (Base Sepolia), Supabase Storage, and traditional web technologies to create an immersive experience.
 
 ## Documentation Structure
 
@@ -29,9 +29,9 @@ High-level system architecture, monorepo structure, core components, deployment 
 Detailed sequence diagrams showing how data moves through the system for various operations.
 
 **Flows covered:**
-- Bottle creation (queue → webhook → IPFS → blockchain)
+- Bottle creation (queue → webhook → Supabase Storage → blockchain)
 - Like/Unlike (optimistic UI → API → blockchain)
-- Comment creation (IPFS → blockchain)
+- Comment creation (Supabase Storage → blockchain)
 - Authentication (SIWE wallet-based auth)
 - Bottle sync (cron job syncing blockchain to DB)
 
@@ -42,7 +42,7 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 - Frontend (Next.js, React, Three.js, Reown AppKit, wagmi)
 - Backend (Next.js API Routes, Supabase Auth)
 - Blockchain (Solidity, ethers.js, viem, Base Sepolia)
-- Storage (Supabase PostgreSQL, Storacha IPFS)
+- Storage (Supabase PostgreSQL, Supabase Storage)
 - Infrastructure (Netlify, Alchemy)
 - Development tools (TypeScript, ESLint, Git)
 - Technology decisions and trade-offs
@@ -52,7 +52,7 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 - **Main Repository**: [forever-message-client](../forever-message-client)
 - **Smart Contracts**: [forever-message-contract](../forever-message-contract)
 - **Shared Types**: [forever-message-types](../forever-message-types)
-- **IPFS Service**: [forever-message-ipfs](../forever-message-ipfs)
+- **Storage Service**: [forever-message-ipfs](../forever-message-ipfs) (legacy — message content now stored in Supabase Storage)
 
 ## Key Concepts
 
@@ -61,7 +61,7 @@ Forever Message is organized as a monorepo with multiple packages that work toge
 - `forever-message-client`: Next.js frontend application
 - `forever-message-contract`: Solidity smart contracts
 - `forever-message-types`: Shared TypeScript types
-- `forever-message-ipfs`: IPFS service library
+- `forever-message-ipfs`: Storage service library (legacy; message content now in Supabase Storage)
 - `forever-message-docs`: This documentation
 
 ### Tech Stack Summary
@@ -71,7 +71,7 @@ Forever Message is organized as a monorepo with multiple packages that work toge
 - **Backend**: Next.js API Routes, Supabase Auth
 - **Database**: Supabase (PostgreSQL)
 - **Blockchain**: Base Sepolia, ethers.js
-- **Storage**: Storacha (IPFS + Filecoin)
+- **Storage**: Supabase Storage (bucket: `forever-message-bottles`, public read)
 - **Typography**: ApfelGrotezk (UI), AndreaScript (decorative)
 - **Design**: Glass-morphism (ocean aesthetic) + Parchment (vintage aesthetic)
 - **Testing**: Cypress (E2E), Jest + RTL (Unit/Component)
@@ -86,7 +86,7 @@ Forever Message is organized as a monorepo with multiple packages that work toge
 - **Professional Animations**: anime.js timeline orchestration for UI sequences
 - **Spring Physics**: React Spring for natural, interactive motion
 - **Real-time Queue Tracking**: Toast notifications for bottle creation progress
-- **Decentralized Storage**: IPFS for message content
+- **Message Storage**: Supabase Storage for message content
 - **Blockchain Immutability**: NFTs on Base Sepolia
 - **Async Processing**: Queue-based bottle creation with webhooks
 - **Custom Typography**: ApfelGrotezk and AndreaScript fonts

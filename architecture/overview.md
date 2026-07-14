@@ -2,7 +2,7 @@
 
 ## System Architecture
 
-Forever Message is a decentralized application that allows users to create and share messages in digital bottles. The application combines blockchain technology, IPFS storage, and traditional web technologies to create an immersive experience.
+Forever Message is a decentralized application that allows users to create and share messages in digital bottles. The application combines blockchain technology, Supabase Storage, and traditional web technologies to create an immersive experience.
 
 ### High-Level Architecture
 
@@ -21,7 +21,7 @@ graph TB
 
     subgraph "Storage Layer"
         DB[(Supabase PostgreSQL)]
-        IPFS[Storacha IPFS]
+        Storage[Supabase Storage]
     end
 
     subgraph "Blockchain Layer"
@@ -43,14 +43,14 @@ graph TB
     DB --> Webhook
     Webhook --> EdgeFn
     EdgeFn --> API
-    API --> IPFS
+    API --> Storage
     API --> RPC
     RPC --> Contract
 
     style UI fill:#e1f5ff
     style DB fill:#ffe1e1
     style Contract fill:#e1ffe1
-    style IPFS fill:#fff4e1
+    style Storage fill:#fff4e1
 ```
 
 ## Monorepo Structure
@@ -62,7 +62,7 @@ forever-message/
 ├── forever-message-client/      # Next.js frontend application
 ├── forever-message-contract/    # Solidity smart contracts
 ├── forever-message-types/       # Shared TypeScript types
-├── forever-message-ipfs/        # IPFS service library
+├── forever-message-ipfs/        # Storage service library (legacy)
 └── forever-message-docs/        # Documentation (this repo)
 ```
 
@@ -86,11 +86,10 @@ forever-message/
 - Type definitions for API responses
 - Ensures type safety across packages
 
-**forever-message-ipfs**
-- Storacha (Web3.Storage) client wrapper
-- IPFS upload/download utilities
-- Principal key and proof management
-- Error handling for IPFS operations
+**forever-message-ipfs** (legacy — storage moved to Supabase Storage in client)
+- Supabase Storage client wrapper
+- Upload/download utilities for message content
+- Error handling for storage operations
 
 ## Core Components
 
@@ -141,7 +140,7 @@ forever-message/
 ```sql
 - id (bigint, PK)
 - creator (text) -- wallet address
-- ipfs_hash (text)
+- ipfs_hash (text) -- legacy column name (cosmetic); now holds a Supabase Storage path
 - message (text)
 - user_id (text) -- wallet address
 - created_at (timestamp)
@@ -157,7 +156,7 @@ forever-message/
 - user_id (text)
 - status (text) -- queued, uploading, minting, confirming, completed, failed
 - progress (int)
-- ipfs_cid (text)
+- ipfs_cid (text) -- legacy column name (cosmetic); now holds a Supabase Storage path
 - blockchain_id (bigint)
 - error (text)
 - created_at, started_at, completed_at (timestamps)
@@ -175,11 +174,13 @@ forever-message/
 ```sql
 - id (bigint, PK)
 - bottle_id (bigint, FK)
-- ipfs_hash (text)
+- ipfs_hash (text) -- legacy column name (cosmetic); now holds a Supabase Storage path
 - user_id (text) -- wallet address
 - blockchain_id (bigint)
 - created_at (timestamp)
 ```
+
+> **Note on legacy naming:** The database columns `ipfs_hash` and `ipfs_cid`, the contract ABI field `ipfsHash`, and TypeScript types such as `IPFSBottle` retain their original IPFS-derived names for backwards compatibility. These names are cosmetic only — the values they hold are now Supabase Storage object paths, not IPFS CIDs. They are kept as-is because the on-chain ABI and existing database schema cannot be renamed without a migration, and the type names are shared across packages via the published `@loscolmebrothers/forever-message-types` package.
 
 ### 4. Smart Contract
 
@@ -197,17 +198,20 @@ forever-message/
 - `BottleUnliked(uint256 bottleId, address user)`
 - `CommentAdded(uint256 bottleId, uint256 commentId, address user, string ipfsHash)`
 
-### 5. IPFS Storage (Storacha)
+> **Note:** The ABI parameter/event field `ipfsHash` is a legacy name kept for blockchain ABI compatibility (it cannot be renamed on a deployed contract). The value stored is now a Supabase Storage object path, not an IPFS CID.
+
+### 5. Message Storage (Supabase Storage)
+
+**Bucket:** `forever-message-bottles` (public read)
 
 **Stored Content:**
 - Bottle messages (JSON format)
 - Comment messages (JSON format)
 - Metadata and timestamps
 
-**Authentication:**
-- Principal key stored in `STORACHA_PRINCIPAL_KEY` env var
-- Delegation proof stored in `storacha-forever-message-proof.txt` file
-- Space DID: `did:key:z6Mkt3yE57ADdGXA5bvf8hYGqzzQM4bqnvv6H3WGh83nK9ry`
+**Access:**
+- Public read via Supabase Storage URLs
+- Authenticated writes via the Supabase service role key (server-side only)
 
 ### 6. Authentication System
 
@@ -221,7 +225,7 @@ forever-message/
 6. Server verifies signature
 7. Server creates Supabase auth session
 8. Client stores JWT token
-9. Subsequent API calls include `Authorization: Bearer <token>` header
+9. Subsequent API calls include `Authorization: Bearer *** header`
 
 **Session Management:**
 - JWT tokens managed by Supabase Auth
@@ -249,9 +253,9 @@ forever-message/
 - Gas: Sponsored by deployer wallet
 
 **Storage:**
-- IPFS: Storacha
-- Gateway: storacha.link
-- Proof: Committed to repo (not secret)
+- Provider: Supabase Storage
+- Bucket: `forever-message-bottles` (public read)
+- Public URLs served via Supabase CDN
 
 ### Environment Variables
 
@@ -267,19 +271,14 @@ NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ... # Server-side only
 
-# IPFS
-STORACHA_PRINCIPAL_KEY=MgCaT...
-# STORACHA_PROOF stored in file (committed)
-
 # Misc
-NEXT_PUBLIC_IPFS_GATEWAY=https://storacha.link/ipfs
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=...
 NETLIFY_FUNCTION_URL=https://your-site.netlify.app # For webhooks
 ```
 
 ## Async Processing Architecture
 
-One of the most critical architectural decisions is how bottle creation is handled. Creating a bottle involves multiple slow operations (IPFS upload, blockchain transaction), which cannot be completed within Netlify's 10s function timeout.
+One of the most critical architectural decisions is how bottle creation is handled. Creating a bottle involves multiple slow operations (Supabase Storage upload, blockchain transaction), which cannot be completed within Netlify's 10s function timeout.
 
 ### Solution: Queue + Webhook Pattern
 
@@ -292,7 +291,7 @@ sequenceDiagram
     participant Webhook as Supabase<br/>Webhook
     participant Edge as Edge Function<br/>process-bottle
     participant Process as Process API<br/>/api/bottles/process
-    participant IPFS
+    participant Storage as Supabase<br/>Storage
     participant Blockchain
 
     User->>Frontend: Click "Cast Bottle"
@@ -308,8 +307,8 @@ sequenceDiagram
     Edge->>Process: POST /api/bottles/process<br/>(60s timeout)
 
     Process->>DB: UPDATE status='uploading'
-    Process->>IPFS: Upload message
-    IPFS-->>Process: CID
+    Process->>Storage: Upload message
+    Storage-->>Process: Storage path
 
     Process->>DB: UPDATE status='minting'
     Process->>Blockchain: Create bottle NFT
@@ -351,7 +350,7 @@ sequenceDiagram
 ### Smart Contract Security
 - No reentrancy vulnerabilities (no external calls before state changes)
 - Access control for bottle creation (only authorized addresses)
-- Immutable IPFS hashes (cannot be changed after creation)
+- Immutable storage references (cannot be changed after creation)
 
 ### API Security
 - JWT token validation on all protected routes
@@ -359,10 +358,10 @@ sequenceDiagram
 - Service role key never exposed to client
 - Rate limiting via Netlify (built-in)
 
-### IPFS Security
-- Delegation proof not a secret (committed to repo is safe)
-- Principal key stored securely in env vars
-- Content addressing prevents tampering
+### Storage Security
+- Public bucket is read-only for unauthenticated clients
+- Writes authenticated via the Supabase service role key (server-side only)
+- Service role key stored securely in env vars and never shipped to the client
 
 ### Wallet Security
 - Private keys never leave user's wallet
@@ -375,7 +374,7 @@ sequenceDiagram
 - **Progressive Loading**: Bottles load in batches of 20
 - **Viewport Culling**: Only render visible bottles
 - **Memoization**: Bottle positions cached
-- **Lazy Loading**: Ocean Stage loaded client-side only
+- **Lazy Loading**: Ocean stage loaded client-side only
 - **SWR Caching**: API responses cached with revalidation
 - **Animation Performance**: anime.js for orchestrated sequences, RAF for sprite effects
 - **Font Loading**: Custom fonts loaded from CDN with font-display strategy
@@ -414,7 +413,7 @@ sequenceDiagram
 
 ### Scalability
 - Move to mainnet (Base or Optimism)
-- CDN for IPFS gateway
+- CDN for storage assets
 - Redis cache for hot data
 - Horizontal scaling via Supabase
 

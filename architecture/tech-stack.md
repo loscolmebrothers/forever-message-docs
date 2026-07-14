@@ -264,20 +264,21 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 - Functions: `process-bottle`, `sync-bottles`
 - Why: Free, reliable, integrated with database webhooks
 
-### File Storage (IPFS)
+### File Storage (Supabase Storage)
 
-**Storacha (formerly Web3.Storage)**
-- Service: Decentralized file storage
-- Protocol: IPFS + Filecoin
-- Gateway: storacha.link
-- Features: Content addressing, permanent storage, free tier
-- Why: True decentralization, no vendor lock-in
+**Supabase Storage**
+- Service: Managed object storage
+- Bucket: `forever-message-bottles` (public read)
+- Features: Public read URLs, CDN-backed delivery, generous free tier
+- Why: Integrated with Supabase DB/Auth, no extra vendor, single SDK
 
-**@web3-storage/w3up-client**
-- Version: `^16.x`
-- Purpose: Storacha client library
-- Authentication: Principal key + delegation proof
-- Why: Official SDK, great TypeScript support
+**@supabase/supabase-js**
+- Version: `^2.x`
+- Purpose: Supabase client (covers DB, Auth, and Storage)
+- Authentication: Service role key for server-side writes
+- Why: Official SDK, excellent TypeScript support
+
+> **Legacy note:** This project previously used Storacha (IPFS + Filecoin) for message content. It has been migrated to Supabase Storage. Code-level identifiers such as the contract ABI field `ipfsHash`, the database columns `ipfs_hash`/`ipfs_cid`, and TypeScript types like `IPFSBottle` keep their original names for backwards compatibility.
 
 ---
 
@@ -420,13 +421,11 @@ Complete overview of all technologies, libraries, and tools used in Forever Mess
 }
 ```
 
-### IPFS Package Dependencies
+### Storage Dependencies (Supabase)
 
 ```json
 {
-  "@web3-storage/w3up-client": "^16.4.2",
-  "@ucanto/principal": "^9.0.0",
-  "@ucanto/transport": "^9.1.0"
+  "@supabase/supabase-js": "^2.x"
 }
 ```
 
@@ -637,7 +636,7 @@ Currently displays "Under Construction" placeholder:
 - Simple modal with construction emoji (🚧)
 - Parchment background maintained for consistency
 - Message: "We're working on making this bottle even more special. Check back soon!"
-- Full IPFS content loading will be implemented later
+- Full Supabase Storage content loading will be implemented later
 
 ---
 
@@ -668,15 +667,16 @@ Currently displays "Under Construction" placeholder:
 - Polygon: Less Ethereum-aligned
 - Arbitrum: Similar to Base, but Base has better docs
 
-#### Storage: Supabase + Storacha
+#### Storage: Supabase (DB + Storage)
 **Pros:**
 - Supabase is managed PostgreSQL (no ops)
-- Storacha is true decentralization (IPFS + Filecoin)
-- Both have generous free tiers
+- Supabase Storage handles message content (public bucket `forever-message-bottles`)
+- Single vendor for DB, Auth, and Storage
+- Generous free tier
 
 **Alternatives Considered:**
-- Self-hosted PostgreSQL: Requires ops
-- Pinata IPFS: More expensive
+- Self-hosted PostgreSQL + S3: Requires ops
+- Storacha/IPFS: More complex auth (delegation proofs)
 - Arweave: Different model (permanent storage)
 
 #### Hosting: Netlify
@@ -722,7 +722,7 @@ Currently displays "Under Construction" placeholder:
 - Bottle list: ~200ms (DB query)
 - Create bottle (queue): ~100ms (fast response)
 - Like/unlike: ~1-2s (DB + blockchain)
-- Comments: ~3-5s (IPFS + blockchain)
+- Comments: ~3-5s (Supabase Storage + blockchain)
 
 ### Database Performance
 - Typical query: <100ms
@@ -750,10 +750,10 @@ Currently displays "Under Construction" placeholder:
 - Access control with Ownable
 - Event-based architecture (no storage bloat)
 
-### IPFS Security
-- Content addressing (tamper-proof)
-- Delegation proof not a secret (safe to commit)
-- Principal key in env vars only
+### Storage Security
+- Public bucket is read-only for unauthenticated clients
+- Writes authenticated via the Supabase service role key (server-side only)
+- Service role key stored in env vars and never shipped to the frontend
 
 ---
 
